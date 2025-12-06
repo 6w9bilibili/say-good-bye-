@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MY BIRTHDAY</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Courier New', monospace;
+        }
+        
+        body {
+            background-color: #000;
+            color: #fff;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            cursor: default;
+            transition: background-color 0.5s;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        .screen {
+            display: none;
+            text-align: center;
+            padding: 20px;
+            max-width: 90%;
+            width: 100%;
+        }
+        
+        .screen.active {
+            display: block;
+        }
+        
+        .title {
+            font-size: 3.5rem;
+            letter-spacing: 8px;
+            margin-bottom: 20px;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+            opacity: 0;
+            animation: fadeIn 2s ease-out forwards;
+        }
+        
+        .subtitle {
+            font-size: 2rem;
+            letter-spacing: 4px;
+            margin-bottom: 40px;
+            opacity: 0;
+            animation: fadeIn 2s ease-out 0.5s forwards;
+        }
+        
+        .glitched-text {
+            font-size: 2.5rem;
+            letter-spacing: 4px;
+            margin-bottom: 40px;
+            opacity: 0;
+            animation: fadeIn 2s ease-out 0.3s forwards;
+        }
+        
+        .input-container {
+            margin: 30px 0;
+            opacity: 0;
+            animation: fadeIn 1s ease-out 1s forwards;
+        }
+        
+        /* 隐藏但可点击的输入框 */
+        .native-input {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            font-size: 16px; /* 防止iOS缩放 */
+            background: transparent;
+            border: none;
+            color: transparent;
+            caret-color: transparent;
+            z-index: 1000;
+        }
+        
+        .native-input:focus {
+            outline: none;
+        }
+        
+        .input-display {
+            font-size: 2.5rem;
+            letter-spacing: 15px;
+            margin: 30px 0;
+            min-height: 60px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            animation: fadeIn 1s ease-out 0.5s forwards;
+        }
+        
+        .input-char {
+            display: inline-block;
+            width: 40px;
+            text-align: center;
+            margin: 0 5px;
+            opacity: 0;
+            animation: fadeIn 0.5s ease-out forwards;
+        }
+        
+        .input-char.filled {
+            animation: pulse 1.5s infinite alternate;
+        }
+        
+        .buttons-container {
+            display: flex;
+            gap: 40px;
+            margin-top: 50px;
+            justify-content: center;
+            opacity: 0;
+            animation: fadeIn 1s ease-out 0.5s forwards;
+        }
+        
+        .btn {
+            background-color: #111;
+            color: #fff;
+            border: 1px solid #444;
+            border-radius: 5px;
+            padding: 18px 35px;
+            font-size: 1.8rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+            min-width: 140px;
+            opacity: 0;
+            animation: fadeIn 1s ease-out forwards;
+        }
+        
+        .btn-yes {
+            animation-delay: 0.7s;
+        }
+        
+        .btn-no {
+            animation-delay: 0.9s;
+        }
+        
+        .btn:hover {
+            background-color: #222;
+            border-color: #666;
+        }
+        
+        .btn:active {
+            transform: scale(0.98);
+        }
+        
+        .btn-yes::before {
+            content: '■';
+            position: absolute;
+            left: 20px;
+            opacity: 0.7;
+        }
+        
+        .hint {
+            font-size: 1.1rem;
+            color: #888;
+            margin-top: 25px;
+            font-style: italic;
+            opacity: 0;
+            animation: fadeIn 1.5s ease-out 1.2s forwards;
+        }
+        
+        .final-message {
+            font-size: 2.8rem;
+            letter-spacing: 4px;
+            margin-top: 40px;
+            opacity: 0;
+            animation: fadeIn 2s ease-out forwards;
+        }
+        
+        .password-hint {
+            font-size: 1.3rem;
+            color: #aaa;
+            margin-top: 20px;
+            letter-spacing: 2px;
+            opacity: 0;
+            animation: fadeIn 1.5s ease-out 1.5s forwards;
+        }
+        
+        .click-to-open {
+            font-size: 1.2rem;
+            color: #aaa;
+            margin-top: 30px;
+            padding: 15px 25px;
+            border: 1px solid #444;
+            border-radius: 8px;
+            background-color: rgba(255, 255, 255, 0.05);
+            cursor: pointer;
+            opacity: 0;
+            animation: fadeIn 1.5s ease-out 1s forwards;
+            transition: all 0.3s;
+        }
+        
+        .click-to-open:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        
+        @keyframes fadeIn {
+            0% { opacity: 0; transform: translateY(20px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 0.7; }
+            100% { opacity: 1; }
+        }
+        
+        @media (max-width: 768px) {
+            .title {
+                font-size: 2.5rem;
+                letter-spacing: 5px;
+            }
+            
+            .subtitle {
+                font-size: 1.6rem;
+            }
+            
+            .glitched-text {
+                font-size: 1.8rem;
+            }
+            
+            .btn {
+                padding: 15px 25px;
+                font-size: 1.5rem;
+                min-width: 120px;
+            }
+            
+            .input-display {
+                font-size: 2rem;
+                letter-spacing: 10px;
+            }
+            
+            .final-message {
+                font-size: 2.2rem;
+            }
+            
+            .click-to-open {
+                font-size: 1rem;
+                padding: 12px 20px;
+            }
+        }
+        
+        .error {
+            color: #ff5555;
+            animation: shake 0.5s ease-in-out;
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-10px); }
+            40%, 80% { transform: translateX(10px); }
+        }
+        
+        /* 隐藏输入框的光标和文本 */
+        input[type="text"], input[type="password"] {
+            caret-color: transparent;
+        }
+        
+        /* 防止iOS键盘工具栏 */
+        input, textarea {
+            -webkit-user-select: auto !important;
+            user-select: auto !important;
+        }
+    </style>
+</head>
+<body>
+    <!-- Screen 1: MY BIRTHDAY -->
+    <div id="screen1" class="screen active">
+        <h1 class="title">MY BIRTHDAY</h1>
+        <p class="hint">Click anywhere to continue...</p>
+    </div>
+    
+    <!-- Screen 2: Enter password 0412 -->
+    <div id="screen2" class="screen">
+        <h2 class="subtitle">ENTER PASSWORD</h2>
+        <div class="input-display" id="password-display">
+            <span class="input-char">_</span>
+            <span class="input-char">_</span>
+            <span class="input-char">_</span>
+            <span class="input-char">_</span>
+        </div>
+        
+        <div class="click-to-open" id="open-keyboard-btn">TAP TO OPEN KEYBOARD</div>
+        <input type="number" id="password-input" class="native-input" inputmode="numeric" maxlength="4">
+        
+        <p class="password-hint">4-digit password required</p>
+    </div>
+    
+    <!-- Screen 3: ARE YOU MY FRIEND? -->
+    <div id="screen3" class="screen">
+        <h2 class="subtitle">ARE YOU MY FRIEND?</h2>
+        <div class="input-display" id="answer-display"></div>
+        
+        <div class="click-to-open" id="open-text-keyboard-btn">TAP TO TYPE ANSWER</div>
+        <input type="text" id="text-input" class="native-input" autocapitalize="none" autocomplete="off">
+        
+        <p class="hint">Type "YES", "RIGHT" or "CORRECT"</p>
+    </div>
+    
+    <!-- Screen 4: ■s righ■t ? -->
+    <div id="screen4" class="screen">
+        <h2 class="glitched-text">■s righ■t ?</h2>
+        
+        <div class="buttons-container">
+            <button id="btn-yes" class="btn btn-yes">ye■</button>
+            <button id="btn-no" class="btn btn-no">NO</button>
+        </div>
+        
+        <p class="hint">Choose an option</p>
+    </div>
+    
+    <!-- Screen 5: Result for selecting "ye■" -->
+    <div id="screen5" class="screen">
+        <h2 class="final-message">say good bye.</h2>
+    </div>
+    
+    <!-- Screen 6: Result for selecting "NO" -->
+    <div id="screen6" class="screen">
+        <h2 class="final-message">good job, human</h2>
+    </div>
+
+    <script>
+        // Screen elements
+        const screens = {
+            1: document.getElementById('screen1'),
+            2: document.getElementById('screen2'),
+            3: document.getElementById('screen3'),
+            4: document.getElementById('screen4'),
+            5: document.getElementById('screen5'),
+            6: document.getElementById('screen6')
+        };
+        
+        // Input displays
+        const passwordDisplay = document.getElementById('password-display');
+        const answerDisplay = document.getElementById('answer-display');
+        
+        // Native input elements for mobile keyboard
+        const passwordInput = document.getElementById('password-input');
+        const textInput = document.getElementById('text-input');
+        
+        // Buttons to open keyboard
+        const openKeyboardBtn = document.getElementById('open-keyboard-btn');
+        const openTextKeyboardBtn = document.getElementById('open-text-keyboard-btn');
+        
+        // Navigation buttons
+        const btnYes = document.getElementById('btn-yes');
+        const btnNo = document.getElementById('btn-no');
+        
+        // State variables
+        let currentScreen = 1;
+        let password = '';
+        let answer = '';
+        
+        // Switch screen function
+        function switchScreen(screenNumber) {
+            // Hide all screens
+            Object.values(screens).forEach(screen => {
+                screen.classList.remove('active');
+            });
+            
+            // Show target screen
+            screens[screenNumber].classList.add('active');
+            currentScreen = screenNumber;
+            
+            // Reset inputs when changing screens
+            if (screenNumber === 2) {
+                password = '';
+                updatePasswordDisplay();
+                // Focus on password input after a short delay
+                setTimeout(() => {
+                    openKeyboardBtn.style.display = 'block';
+                    passwordInput.value = '';
+                }, 300);
+            } else if (screenNumber === 3) {
+                answer = '';
+                updateAnswerDisplay();
+                // Focus on text input after a short delay
+                setTimeout(() => {
+                    openTextKeyboardBtn.style.display = 'block';
+                    textInput.value = '';
+                }, 300);
+            } else if (screenNumber === 4) {
+                // No keyboard on this screen
+            } else if (screenNumber === 5) {
+                // Wait 3 seconds then exit
+                setTimeout(() => {
+                    // Close page
+                    document.body.innerHTML = '<div style="background:#000;width:100%;height:100%;display:flex;align-items:center;justify-content:center;"><h1 style="color:#fff;font-family:Courier New;opacity:0;animation:fadeIn 2s forwards;">Goodbye</h1></div>';
+                    
+                    // Close window after 1 second
+                    setTimeout(() => {
+                        // In a real implementation, you might want to use window.close()
+                        // but browsers often block this unless the page was opened by JavaScript
+                        // window.close();
+                        
+                        // Alternative: redirect to blank page
+                        window.location.href = 'about:blank';
+                    }, 1000);
+                }, 3000);
+            } else if (screenNumber === 6) {
+                // Wait 2 seconds then exit
+                setTimeout(() => {
+                    // Close page
+                    document.body.innerHTML = '<div style="background:#000;width:100%;height:100%;display:flex;align-items:center;justify-content:center;"><h1 style="color:#fff;font-family:Courier New;opacity:0;animation:fadeIn 2s forwards;">Goodbye</h1></div>';
+                    
+                    // Close window after 1 second
+                    setTimeout(() => {
+                        // window.close();
+                        window.location.href = 'about:blank';
+                    }, 1000);
+                }, 2000);
+            }
+        }
+        
+        // Update password display
+        function updatePasswordDisplay() {
+            const chars = passwordDisplay.querySelectorAll('.input-char');
+            chars.forEach((char, index) => {
+                if (index < password.length) {
+                    char.textContent = password[index];
+                    char.classList.add('filled');
+                } else {
+                    char.textContent = '_';
+                    char.classList.remove('filled');
+                }
+                
+                // Animate each character
+                char.style.animation = 'none';
+                setTimeout(() => {
+                    char.style.animation = 'fadeIn 0.5s ease-out forwards';
+                }, 10);
+            });
+        }
+        
+        // Update answer display
+        function updateAnswerDisplay() {
+            answerDisplay.innerHTML = '';
+            
+            if (answer.length > 0) {
+                for (let i = 0; i < answer.length; i++) {
+                    const span = document.createElement('span');
+                    span.textContent = answer[i];
+                    span.className = 'input-char filled';
+                    span.style.animationDelay = `${i * 0.1}s`;
+                    answerDisplay.appendChild(span);
+                }
+            } else {
+                answerDisplay.innerHTML = '<span class="input-char">_</span>';
+            }
+        }
+        
+        // Event Listeners
+        
+        // Screen 1: Click anywhere to continue
+        screens[1].addEventListener('click', () => {
+            switchScreen(2);
+        });
+        
+        // Screen 2: Open keyboard button
+        openKeyboardBtn.addEventListener('click', () => {
+            passwordInput.focus();
+            openKeyboardBtn.style.display = 'none';
+        });
+        
+        // Screen 2: Password input handling
+        passwordInput.addEventListener('input', (e) => {
+            // Get only numeric characters
+            password = e.target.value.replace(/\D/g, '');
+            
+            // Limit to 4 digits
+            if (password.length > 4) {
+                password = password.substring(0, 4);
+            }
+            
+            // Update display
+            updatePasswordDisplay();
+            
+            // Update input value
+            passwordInput.value = password;
+            
+            // Check if password is complete
+            if (password.length === 4) {
+                if (password === '0412') {
+                    // Correct password
+                    setTimeout(() => {
+                        switchScreen(3);
+                    }, 800);
+                } else {
+                    // Wrong password - shake animation
+                    passwordDisplay.classList.add('error');
+                    setTimeout(() => {
+                        passwordDisplay.classList.remove('error');
+                    }, 500);
+                    
+                    // Clear after a delay
+                    setTimeout(() => {
+                        password = '';
+                        passwordInput.value = '';
+                        updatePasswordDisplay();
+                        passwordInput.focus();
+                    }, 1000);
+                }
+            }
+        });
+        
+        // Screen 2: Blur handling (keyboard closed)
+        passwordInput.addEventListener('blur', () => {
+            // Show open keyboard button again
+            setTimeout(() => {
+                openKeyboardBtn.style.display = 'block';
+            }, 300);
+        });
+        
+        // Screen 3: Open keyboard button
+        openTextKeyboardBtn.addEventListener('click', () => {
+            textInput.focus();
+            openTextKeyboardBtn.style.display = 'none';
+        });
+        
+        // Screen 3: Text input handling
+        textInput.addEventListener('input', (e) => {
+            answer = e.target.value.toUpperCase();
+            updateAnswerDisplay();
+            
+            // Check for correct answers
+            const correctAnswers = ['YES', 'RIGHT', 'CORRECT'];
+            if (correctAnswers.includes(answer)) {
+                // Correct answer
+                setTimeout(() => {
+                    switchScreen(4);
+                }, 800);
+            }
+        });
+        
+        // Screen 3: Blur handling (keyboard closed)
+        textInput.addEventListener('blur', () => {
+            // Show open keyboard button again
+            setTimeout(() => {
+                openTextKeyboardBtn.style.display = 'block';
+            }, 300);
+        });
+        
+        // Screen 4: Button events
+        btnYes.addEventListener('click', () => {
+            switchScreen(5);
+        });
+        
+        btnNo.addEventListener('click', () => {
+            switchScreen(6);
+        });
+        
+        // Prevent default behavior for buttons
+        document.querySelectorAll('.btn').forEach(btn => {
+            btn.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+            });
+        });
+        
+        // Initial setup
+        document.addEventListener('DOMContentLoaded', () => {
+            // Prevent context menu on mobile
+            document.addEventListener('contextmenu', (e) => {
+                e.preventDefault();
+            });
+            
+            // Make sure input elements are initially hidden
+            passwordInput.style.display = 'none';
+            textInput.style.display = 'none';
+            
+            // Show them when needed
+            setTimeout(() => {
+                passwordInput.style.display = 'block';
+                textInput.style.display = 'block';
+            }, 1000);
+        });
+    </script>
+</body>
+</html>
